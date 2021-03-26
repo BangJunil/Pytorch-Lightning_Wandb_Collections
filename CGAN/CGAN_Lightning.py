@@ -5,9 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
-from torchvision.datasets import MNIST
-from torch.utils.data import DataLoader
-
 from pytorch_lightning.core import LightningModule
 
 import os
@@ -164,16 +161,6 @@ class CGAN(LightningModule):
         opt_g = torch.optim.Adam(self.G.parameters(), lr=self.lr, betas=(self.b1, self.b2))
         opt_d = torch.optim.Adam(self.D.parameters(), lr=self.lr, betas=(self.b1, self.b2))
         return [opt_g, opt_d], []
-
-    def train_dataloader(self):
-        transform = transforms.Compose([
-            transforms.Resize((self.input_size, self.input_size)),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5,), (0.5,))
-        ])
-        data_loader = DataLoader(MNIST(os.getcwd(), train=True, download=True, transform=transform),
-                                 batch_size=self.batch_size, shuffle=True)
-        return data_loader
 
     def on_epoch_end(self):
         sample_y_ = torch.zeros(self.batch_size, self.class_num).scatter_(1, torch.randint(0, self.class_num - 1,
